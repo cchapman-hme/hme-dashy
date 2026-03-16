@@ -35,13 +35,15 @@ services:
       # Generate with: openssl rand -hex 32
       - SESSION_SECRET=${SESSION_SECRET}
       # Optional: restrict to specific Azure AD group OIDs (comma-separated)
-      # - ALLOWED_GROUPS=${ALLOWED_GROUPS}
+      - ALLOWED_GROUPS=${ALLOWED_GROUPS}
       # Optional: emails with admin access (comma-separated)
       # - ADMIN_EMAILS=${ADMIN_EMAILS}
       # ──────────────────────────────────────────────────────────────
 
-    # Persist the SQLite session database across restarts
     volumes:
+      # Dashy config — preserves conf.yml and item icons across container updates
+      - dashy_config:/app/user-data
+      # SQLite session database — preserves login sessions across restarts
       - dashy-sessions:/app/data
 
     restart: unless-stopped
@@ -54,4 +56,5 @@ services:
       start_period: 40s
 
 volumes:
+  dashy_config:      # pre-existing named volume — do not change this name
   dashy-sessions:

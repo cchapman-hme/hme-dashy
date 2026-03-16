@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon.ico">
+  <title>Sign In — HME Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    [data-theme="dark"] {
+      --bg: #0c0e12;
+      --bg-subtle: #10131a;
+      --surface: #161a22;
+      --surface-raised: #1c2029;
+      --elevated: #22272f;
+      --border: #2a3040;
+      --border-subtle: #1e2330;
+      --text-primary: #d4dae4;
+      --text-secondary: #8892a4;
+      --text-muted: #5c6478;
+      --accent: #5ba0f5;
+      --accent-hover: #7db8ff;
+      --accent-glow: rgba(91, 160, 245, 0.12);
+      --accent-secondary: #3fb950;
+      --accent-secondary-glow: rgba(63, 185, 80, 0.10);
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+      --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    }
+
+    [data-theme="light"] {
+      --bg: #f4f6f9;
+      --bg-subtle: #eef1f5;
+      --surface: #ffffff;
+      --surface-raised: #ffffff;
+      --elevated: #f0f2f6;
+      --border: #d2d8e2;
+      --border-subtle: #e2e6ee;
+      --text-primary: #1a1f2e;
+      --text-secondary: #5a6478;
+      --text-muted: #8892a4;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-glow: rgba(37, 99, 235, 0.08);
+      --accent-secondary: #16a34a;
+      --accent-secondary-glow: rgba(22, 163, 74, 0.06);
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+      --noise: none;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+      transition: background 0.4s, color 0.4s;
+      letter-spacing: 0.01em;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: var(--noise);
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ---- Full-viewport split layout ---- */
+    .hero-layout {
+      display: flex;
+      height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Left: Brand panel */
+    .brand-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem 3.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-panel::before {
+      content: '';
+      position: absolute;
+      top: 15%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%);
+      pointer-events: none;
+    }
+    .brand-panel::after {
+      content: '';
+      position: absolute;
+      bottom: 10%;
+      right: -5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, color-mix(in srgb, var(--accent-secondary) 6%, transparent), transparent 70%);
+      pointer-events: none;
+    }
+
+    .brand-content {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+    }
+
+    .brand-content::before {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+      border-radius: 2px;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      margin-bottom: 2rem;
+      display: block;
+      box-shadow: 0 0 24px var(--accent-glow);
+      background: var(--elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 6px;
+      object-fit: contain;
+    }
+
+    /* Fallback monogram when logo image is missing */
+    .logo-fallback {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--elevated);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 0 24px var(--accent-glow);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .brand-title {
+      font-family: var(--font-body);
+      font-weight: 200;
+      font-size: 2.75rem;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .brand-title strong {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .brand-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.75rem;
+    }
+
+    .brand-description {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      max-width: 380px;
+    }
+
+    .grid-dots {
+      position: absolute;
+      bottom: 3rem;
+      left: 3.5rem;
+      display: grid;
+      grid-template-columns: repeat(5, 8px);
+      gap: 12px;
+      opacity: 0.2;
+    }
+    .grid-dots .dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    /* Right: Login panel */
+    .login-panel {
+      width: 440px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem;
+      background: color-mix(in srgb, var(--surface) 60%, transparent);
+      backdrop-filter: blur(20px) saturate(1.3);
+      -webkit-backdrop-filter: blur(20px) saturate(1.3);
+      border-left: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .login-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent));
+    }
+
+    .login-inner {
+      width: 100%;
+      max-width: 340px;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.875rem;
+      line-height: 1.65;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.3s;
+      border-left: 3px solid;
+    }
+    .alert:hover { opacity: 0.85; }
+    .alert.error {
+      background: color-mix(in srgb, #f85149 6%, var(--bg));
+      border-left-color: #f85149;
+      color: #f85149;
+    }
+    .alert.info {
+      background: color-mix(in srgb, var(--accent) 6%, var(--bg));
+      border-left-color: var(--accent);
+      color: var(--accent);
+    }
+    .alert .dismiss {
+      margin-left: auto;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      line-height: 1;
+      opacity: 0.6;
+    }
+    .alert.hidden { display: none; }
+
+    /* Sign-in button */
+    .btn-microsoft {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      width: 100%;
+      padding: 0.8rem 1.25rem;
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+    .btn-microsoft:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 24px color-mix(in srgb, var(--accent) 40%, transparent);
+      transform: translateY(-1px);
+    }
+    .btn-microsoft:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .btn-microsoft:active { transform: translateY(0); }
+    .btn-microsoft svg { flex-shrink: 0; }
+
+    .login-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 1.5rem 0;
+    }
+
+    .login-footer {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* Responsive */
+    @media (max-width: 860px) {
+      body { overflow-y: auto; }
+      .hero-layout { flex-direction: column; height: auto; min-height: 100vh; }
+      .brand-panel { flex: none; padding: 3rem 2rem 2rem; }
+      .brand-title { font-size: 2rem; }
+      .brand-description { display: none; }
+      .grid-dots { display: none; }
+      .login-panel {
+        width: 100%;
+        flex: 1;
+        border-left: none;
+        border-top: 1px solid var(--border-subtle);
+        padding: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-layout">
+    <!-- Left: Brand panel -->
+    <div class="brand-panel">
+      <div class="brand-content">
+        <div class="logo-fallback" id="logoFallback" aria-hidden="true">HME</div>
+        <img src="/hme.png" alt="HME" class="logo-mark" id="logoImg"
+             style="display:none"
+             onload="this.style.display='block'; document.getElementById('logoFallback').style.display='none';">
+        <h1 class="brand-title"><strong>HME</strong><br>Dashboard</h1>
+        <p class="brand-subtitle">HM Electronics</p>
+        <p class="brand-description">
+          Your centralized hub for services, monitoring, and internal tools
+          across HM Electronics.
+        </p>
+      </div>
+      <div class="grid-dots" aria-hidden="true">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- Right: Login panel -->
+    <div class="login-panel">
+      <div class="login-inner">
+        <div id="alerts"></div>
+        <a href="/auth/login" class="btn-microsoft">
+          <svg width="18" height="18" viewBox="0 0 21 21" fill="none" aria-hidden="true">
+            <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+            <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+            <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+          </svg>
+          Sign in with Microsoft
+        </a>
+        <div class="login-divider"></div>
+        <p class="login-footer">Authenticated via Microsoft Entra ID</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Login page is always dark
+      document.documentElement.setAttribute('data-theme', 'dark');
+
+      var params = new URLSearchParams(window.location.search);
+      var messages = {
+        denied: { text: "Access denied. You don\u2019t have permission to access this portal.", type: 'error' },
+        error:  { text: 'Authentication failed. Please try again.', type: 'error' },
+        logout: { text: "You\u2019ve been signed out.", type: 'info' }
+      };
+
+      var container = document.getElementById('alerts');
+      Object.keys(messages).forEach(function (key) {
+        if (params.get(key) !== '1') return;
+        var m = messages[key];
+        var el = document.createElement('div');
+        el.className = 'alert ' + m.type;
+        el.setAttribute('role', 'alert');
+        el.innerHTML = '<span>' + m.text + '</span><span class="dismiss" aria-label="Dismiss">&times;</span>';
+        el.addEventListener('click', function () { el.classList.add('hidden'); });
+        container.appendChild(el);
+      });
+    })();
+  </script>
+</body>
+</html>

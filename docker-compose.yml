@@ -1,21 +1,19 @@
 ---
-# Welcome to Dashy! To get started, run `docker compose up -d`
-# You can configure your container here, by modifying this file
+# HME Dashboard (hme-dashy) — docker-compose
+# To start: docker compose up -d
+# To rebuild locally: docker compose up -d --build
 version: "3.8"
 services:
   dashy:
     container_name: Dashy
 
-    # Pull latest image from DockerHub
-    image: lissy93/dashy
+    # Pull the custom HME image from GitHub Container Registry
+    image: ghcr.io/cchapman-hme/hme-dashy:latest
 
-    # To build from source, replace 'image: lissy93/dashy' with 'build: .'
+    # To build and run locally instead of pulling the GHCR image:
     # build: .
 
-    # You can also use an image with a different tag, or pull from a different registry, e.g:
-    # image: ghcr.io/lissy93/dashy or image: lissy93/dashy:3.0.0
-
-    # Pass in your config file below, by specifying the path on your host machine
+    # Pass in your config file
     # volumes:
       # - /path/to/my-config.yml:/app/user-data/conf.yml
       # - /path/to/item-icons:/app/user-data/item-icons/
@@ -24,20 +22,36 @@ services:
     ports:
       - 4000:8080
 
-    # Set any environmental variables
     environment:
       - NODE_ENV=production
-    # Specify your user ID and group ID. You can find this by running `id -u` and `id -g`
-    #  - UID=1000
-    #  - GID=1000
 
-    # Specify restart policy
+      # ── Azure Entra ID SSO ──────────────────────────────────────────────────
+      # Register an app at https://portal.azure.com → App registrations
+      # Set Redirect URI to: https://<your-host>/auth/callback
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - REDIRECT_URI=${REDIRECT_URI}
+      # Generate with: openssl rand -hex 32
+      - SESSION_SECRET=${SESSION_SECRET}
+      # Optional: restrict to specific Azure AD group OIDs (comma-separated)
+      # - ALLOWED_GROUPS=${ALLOWED_GROUPS}
+      # Optional: emails with admin access (comma-separated)
+      # - ADMIN_EMAILS=${ADMIN_EMAILS}
+      # ──────────────────────────────────────────────────────────────
+
+    # Persist the SQLite session database across restarts
+    volumes:
+      - dashy-sessions:/app/data
+
     restart: unless-stopped
 
-    # Configure healthchecks
     healthcheck:
       test: ['CMD', 'node', '/app/services/healthcheck']
       interval: 1m30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+volumes:
+  dashy-sessions:

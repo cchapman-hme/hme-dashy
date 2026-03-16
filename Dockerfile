@@ -24,8 +24,9 @@ COPY . ./
 # Build initial app for production
 RUN yarn build --mode production --no-clean
 
-# Production stage
-FROM node:20.11.1-alpine3.19
+# Production stage — must match BUILD_IMAGE Node version so native modules
+# (e.g. better-sqlite3) don't need to be recompiled
+FROM node:18.19.1-alpine
 
 # Define some ENV Vars
 ENV PORT=8080 \

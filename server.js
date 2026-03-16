@@ -41,6 +41,12 @@ const getUser = require('./services/get-user'); // Enables server side user look
 const printMessage = require('./services/print-message'); // Function to print welcome msg on start
 const ENDPOINTS = require('./src/utils/defaults').serviceEndpoints; // API endpoint URL paths
 
+/* SSO authentication (Azure Entra ID via MSAL) */
+const session = require('express-session');
+const { SessionStore } = require('./services/auth/session-store');
+const authRoutes = require('./services/auth/routes');
+const { requireAuth } = require('./services/auth/middleware');
+
 /* Checks if app is running within a container, from env var */
 const isDocker = !!process.env.IS_DOCKER;
 
@@ -143,6 +149,23 @@ const app = express()
   .use(sslServer.middleware)
   // Load middlewares for parsing JSON, and supporting HTML5 history routing
   .use(express.json({ limit: '1mb' }))
+  // Session middleware (must come before auth routes)
+  .use(session({
+    store: new SessionStore(),
+    secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    },
+  }))
+  // SSO auth routes: /auth/login, /auth/callback, /auth/logout (unauthenticated)
+  .use('/auth', authRoutes)
+  // Hero login page (unauthenticated)
+  .get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')))
   // GET endpoint to run status of a given URL with GET request
   .use(ENDPOINTS.statusCheck, (req, res) => {
     try {
@@ -206,6 +229,8 @@ const app = express()
   })
   // Serves up static files
   .use(express.static(path.join(__dirname, process.env.USER_DATA_DIR || 'user-data')))
+  // Require SSO login before serving the dashboard app
+  .use(requireAuth)
   .use(express.static(path.join(__dirname, 'dist')))
   .use(express.static(path.join(__dirname, 'public'), { index: 'initialization.html' }))
   .use(history())

@@ -59,6 +59,16 @@ const host = process.env.HOST || '0.0.0.0';
 /* Indicates for the webpack config, that running as a server */
 process.env.IS_SERVER = 'True';
 
+/* Catch unhandled rejections and exceptions so they appear in docker logs */
+process.on('uncaughtException', (err) => {
+  console.error('[Dashy] Uncaught Exception:', err); // eslint-disable-line no-console
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[Dashy] Unhandled Rejection:', reason); // eslint-disable-line no-console
+  process.exit(1);
+});
+
 /* Attempts to get the users local IP, used as part of welcome message */
 const getLocalIp = () => {
   const dnsLookup = util.promisify(dns.lookup);

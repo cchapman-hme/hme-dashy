@@ -5,14 +5,15 @@
 /**
  * Require an authenticated session before serving the app.
  *
- * Dev bypass: if AZURE_CLIENT_ID is not set and NODE_ENV !== 'production',
- * a synthetic dev session is created automatically so the app runs without
- * Azure credentials during local development.
+ * SSO is opt-in: if AZURE_CLIENT_ID is not set, authentication is
+ * skipped entirely and the dashboard is served without login.
+ * In non-production mode, a synthetic dev session is created for
+ * convenience (visible in the UI as "Dev User").
  */
 function requireAuth(req, res, next) {
-  // Dev bypass — auto-auth when Azure is not configured
-  if (!process.env.AZURE_CLIENT_ID && process.env.NODE_ENV !== 'production') {
-    if (!req.session.user) {
+  // SSO is opt-in — if Azure is not configured, skip auth entirely
+  if (!process.env.AZURE_CLIENT_ID) {
+    if (process.env.NODE_ENV !== 'production' && !req.session.user) {
       req.session.user = { name: 'Dev User', email: 'dev@localhost', oid: 'dev' };
     }
     return next();

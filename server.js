@@ -152,7 +152,12 @@ const protectConfig = getBasicAuthMiddleware();
 /* A middleware function for Connect, that filters requests based on method type */
 const method = (m, mw) => (req, res, next) => (req.method === m ? mw(req, res, next) : next());
 
-const app = express()
+const app = express();
+
+/* Trust reverse proxy (nginx, etc.) so req.secure and X-Forwarded-* work */
+app.set('trust proxy', 1);
+
+app
   // Load SSL redirection middleware
   .use(sslServer.middleware)
   // Load middlewares for parsing JSON, and supporting HTML5 history routing
@@ -165,7 +170,7 @@ const app = express()
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.SESSION_COOKIE_SECURE === 'true', // only set Secure flag when explicitly enabled
       sameSite: 'lax',
       maxAge: 8 * 60 * 60 * 1000, // 8 hours
     },

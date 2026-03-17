@@ -36,10 +36,11 @@ console.log(`[${startTime}] Running health check...`);
 const healthCheck = http.request(requestOptions, (response) => {
   const totalTime = (new Date() - startTime) / 1000;
   const status = response.statusCode;
-  const color = status === 200 ? '\x1b[32m' : '\x1b[31m';
+  const isHealthy = status >= 200 && status < 400; // 2xx and 3xx (redirects) are healthy
+  const color = isHealthy ? '\x1b[32m' : '\x1b[31m';
   const message = `${color}Status: ${status}\nRequest took ${totalTime} seconds\n\x1b[0m---`;
   console.log(message); // Print out healthcheck response
-  process.exit(status === 200 ? 0 : 1); // Exit with 0 (success), if response is 200 okay
+  process.exit(isHealthy ? 0 : 1); // Exit with 0 (success), if response is 2xx or 3xx
 });
 
 /* If the server is not running, then print the error code, and exit with 1 */

@@ -67,15 +67,13 @@ const getLocalIp = () => {
 
 /* Gets the users local IP and port, then calls to print welcome message */
 const printWelcomeMessage = () => {
-  try {
-    getLocalIp().then(({ address }) => {
-      const ip = process.env.HOST || address || 'localhost';
-      console.log(printMessage(ip, port, isDocker)); // eslint-disable-line no-console
-    });
-  } catch (e) {
-    // No clue what could of gone wrong here, but print fallback message if above failed
-    console.log(`Dashy server has started (${port})`); // eslint-disable-line no-console
-  }
+  getLocalIp().then(({ address }) => {
+    const ip = process.env.HOST || address || 'localhost';
+    console.log(printMessage(ip, port, isDocker)); // eslint-disable-line no-console
+  }).catch(() => {
+    // dns.lookup may fail in some container environments — print fallback message
+    console.log(printMessage('localhost', port, isDocker)); // eslint-disable-line no-console
+  });
 };
 
 /* Just console.warns an error */
